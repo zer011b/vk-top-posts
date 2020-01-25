@@ -61,11 +61,11 @@ def get_post_url(wall_id, post_id):
   return "https://vk.com/wall-" + str(wall_id) + "_" + str(post_id)
 
 def show_post(index, post):
-  print(str(index) + ") " + post[2] + " : "
-        + "likes(" + str(post[3]) + "), "
-        + "comments(" + str(post[4]) + "), "
-        + "reposts(" + str(post[5]) + "), "
-        + "views(" + str(post[6]) + "), ")
+  print(str(index) + ") " + post.get("post_url") + " : "
+        + "likes(" + str(post.get("likes")) + "), "
+        + "comments(" + str(post.get("comments")) + "), "
+        + "reposts(" + str(post.get("reposts")) + "), "
+        + "views(" + str(post.get("views")) + "), ")
 
 def show_posts(posts, count):
   print("\n----------------------------------------------------------------")
@@ -91,18 +91,18 @@ def parse_request(posts, api, id, offset, count):
     if items[i].get("views") != None:
       views = items[i].get("views").get("count")
 
-    posts.append((items[i],
-                  post_id,
-                  get_post_url(id, post_id),
-                  likes,
-                  comments,
-                  reposts,
-                  views))
+    posts.append({'raw': items[i],
+                  'post_id': post_id,
+                  'post_url': get_post_url(id, post_id),
+                  'likes': likes,
+                  'comments': comments,
+                  'reposts': reposts,
+                  'views': views})
   return size
 
 
 # Analyze specified amount of posts
-def analyze_count(api, num_posts, id, top_count, url):
+def analyze_count(api, num_posts, id, top_count, url, sort_str):
   if num_posts <= 0 or top_count <= 0:
     return
 
@@ -123,9 +123,9 @@ def analyze_count(api, num_posts, id, top_count, url):
 
   print("...received " + str(size) + " posts...")
 
-  print("...showing " + str(top_count) + " top posts...")
+  print("...showing " + str(top_count) + " top posts by " + sort_str + "...")
 
-  sorted_posts = sorted(posts, key=lambda post: post[3], reverse=True)
+  sorted_posts = sorted(posts, key=lambda post: post.get(sort_str), reverse=True)
   show_posts(sorted_posts, min(top_count,len(sorted_posts)))
 
 
@@ -139,6 +139,10 @@ def main ():
                       type=is_positive, default=1)
   parser.add_argument("--access-token", help="specify access token",
                       type=is_not_empty, default="")
+  parser.add_argument("--likes", help="sort by likes", action="store_true")
+  parser.add_argument("--comments", help="sort by comments", action="store_true")
+  parser.add_argument("--reposts", help="sort by reposts", action="store_true")
+  parser.add_argument("--views", help="sort by views", action="store_true")
   args = parser.parse_args()
 
   vk_session = create_vk_session(args.access_token)
@@ -146,9 +150,18 @@ def main ():
 
   id = vk_utils_resolveScreenName(vk_api, args.url)
 
-  if args.count > 0:
-    analyze_count(vk_api, args.count, id, args.top, args.url)
+  sort_str = "likes"
+  if args.likes:
+    sort_str = "likes"
+  elif args.comments:
+    sort_str = "comments"
+  elif args.reposts:
+    sort_str = "reposts"
+  elif args.views:
+    sort_str = "views"
 
+  if args.count > 0:
+    analyze_count(vk_api, args.count, id, args.top, args.url, sort_str)
 
 
 if __name__ == "__main__":
