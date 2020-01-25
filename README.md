@@ -26,6 +26,10 @@ python3 parse.py --start-date <dd/mm/yyyy> --end-date <dd/mm/yyyy> --url <url> -
 
 Access token can be obtained from service token of standalone app (https://vk.com/dev/service_token). To create standalone app visit https://vk.com/dev/standalone.
 
+wall.get API can be checked at https://vk.com/dev/wall.get.
+
 # TODO
 
 - download attachments automatically
+- minimize memory profile
+- improve performance
