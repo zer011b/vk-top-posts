@@ -60,8 +60,17 @@ def create_vk_api(session):
 def get_post_url(wall_id, post_id):
   return "https://vk.com/wall-" + str(wall_id) + "_" + str(post_id)
 
-def show_post(post):
-  print(post[2] + " : " + str(post[3]))
+def show_post(index, post):
+  print(str(index) + ") " + post[2] + " : "
+        + "likes(" + str(post[3]) + "), "
+        + "comments(" + str(post[4]) + "), "
+        + "reposts(" + str(post[5]) + "), "
+        + "views(" + str(post[6]) + "), ")
+
+def show_posts(posts, count):
+  print("\n----------------------------------------------------------------")
+  for i in range(count):
+    show_post(i, posts[i])
 
 # Wall posts analysis ==========================================================
 # Parse single wall.get request and return count of received posts
@@ -74,17 +83,29 @@ def parse_request(posts, api, id, offset, count):
   size = len(items)
   for i in range(size):
     post_id = items[i].get("id")
+
+    likes = items[i].get("likes").get("count");
+    comments = items[i].get("comments").get("count")
+    reposts = items[i].get("reposts").get("count")
+    views = 0
+    if items[i].get("views") != None:
+      views = items[i].get("views").get("count")
+
     posts.append((items[i],
                   post_id,
                   get_post_url(id, post_id),
-                  items[i].get("likes").get("count"),
-                  items[i].get("comments").get("count"),
-                  items[i].get("reposts").get("count"),
-                  items[i].get("views").get("count")))
+                  likes,
+                  comments,
+                  reposts,
+                  views))
   return size
+
 
 # Analyze specified amount of posts
 def analyze_count(api, num_posts, id, top_count, url):
+  if num_posts <= 0 or top_count <= 0:
+    return
+
   print("Analyzing " + str(num_posts) + " posts from " + url)
 
   posts=[]
@@ -105,8 +126,7 @@ def analyze_count(api, num_posts, id, top_count, url):
   print("...showing " + str(top_count) + " top posts...")
 
   sorted_posts = sorted(posts, key=lambda post: post[3], reverse=True)
-  for i in range(max(top_count,len(sorted_posts))):
-    show_post(sorted_posts[i])
+  show_posts(sorted_posts, min(top_count,len(sorted_posts)))
 
 
 def main ():
@@ -115,7 +135,7 @@ def main ():
                       type=is_positive, default=0)
   parser.add_argument("--url", help="specify the url of group (club), user, etc.",
                       type=is_not_empty, default="")
-  parser.add_argument("--show-top", help="specify the amount of top posts to be shown",
+  parser.add_argument("--top", help="specify the amount of top posts to be shown",
                       type=is_positive, default=1)
   parser.add_argument("--access-token", help="specify access token",
                       type=is_not_empty, default="")
@@ -127,7 +147,7 @@ def main ():
   id = vk_utils_resolveScreenName(vk_api, args.url)
 
   if args.count > 0:
-    analyze_count(vk_api, args.count, id, args.show_top, args.url)
+    analyze_count(vk_api, args.count, id, args.top, args.url)
 
 
 
