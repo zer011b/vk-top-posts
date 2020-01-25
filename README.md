@@ -1,4 +1,4 @@
-This is vk.com walls parser, which shows top posts.
+This is vk.com walls parser, which shows top posts. Sorting can be done by likes, comments, reposts and views.
 
 # Prerequisites
 
@@ -12,14 +12,20 @@ pip install vk
 python3 parse.py --help
 ```
 
-Typical usage example:
+There are two modes:
+
+1. Parse N latest posts:
 ```
-python3 parse.py --count 100 --url <url> --top 10 --access-token <token> --likes
+python3 parse.py --count <N> --url <url> --top <M> --access-token <token> --likes
 ```
 
-Access token can be obtained from service token of standalone app (https://vk.com/dev/service_token). To create standalone app, see https://vk.com/dev/standalone.
+2. Parse all posts from start date to end date
+```
+python3 parse.py --start-date <dd/mm/yyyy> --end-date <dd/mm/yyyy> --url <url> --top <M> --access-token <token> --likes
+```
+
+Access token can be obtained from service token of standalone app (https://vk.com/dev/service_token). To create standalone app visit https://vk.com/dev/standalone.
 
 # TODO
 
-- add start/end date mode
 - download attachments automatically
