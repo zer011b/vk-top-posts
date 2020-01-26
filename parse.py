@@ -112,8 +112,7 @@ def parse_request(posts, api, id, offset, count, start_date, end_date):
     if items[i].get("views") != None:
       views = items[i].get("views").get("count")
 
-    posts.append({'raw': items[i],
-                  'timestamp': timestamp,
+    posts.append({'timestamp': timestamp,
                   'post_id': post_id,
                   'post_url': get_post_url(id, post_id),
                   'likes': likes,

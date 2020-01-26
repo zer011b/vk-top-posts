@@ -31,5 +31,4 @@ wall.get API can be checked at https://vk.com/dev/wall.get.
 # TODO
 
 - download attachments automatically
-- minimize memory profile
 - improve performance
