@@ -89,7 +89,8 @@ def parse_request(posts, api, id, offset, count, start_date, end_date):
   if count <= 0:
     return (0, 0)
 
-  reached_start_date = False
+  reached_start_date = 0
+  reached_start_date_bool = False
 
   res = vk_wall_get_simple(api, id, offset, count)
   items = res.get("items")
@@ -102,8 +103,12 @@ def parse_request(posts, api, id, offset, count, start_date, end_date):
       if timestamp > end_date:
         continue
       if timestamp < start_date:
-        reached_start_date = True
-        break
+        reached_start_date += 1
+        if reached_start_date >= 2:
+          reached_start_date_bool = True
+          break
+        else:
+          continue
 
     likes = items[i].get("likes").get("count");
     comments = items[i].get("comments").get("count")
@@ -119,7 +124,7 @@ def parse_request(posts, api, id, offset, count, start_date, end_date):
                   'comments': comments,
                   'reposts': reposts,
                   'views': views})
-  return (size, reached_start_date)
+  return (size, reached_start_date_bool)
 
 
 # Analyze specified amount of posts
